@@ -1,0 +1,42 @@
+// WebRTC
+
+*** Browser I ***
+const peerConnection=new RTCPeerConnection();
+const dataChannel=peerConnection.createDataChannel("BigData")
+dataChannel.onopen=()=>console.log("Channel opened")
+dataChannel.onmessage=(e)=>console.log("Message: "+e.data)
+peerConnection.onicecandidate=(e)=>console.log('IceCandidate: ',JSON.stringify(peerConnection.localDescription))
+const offer=await peerConnection.createOffer()
+offer
+await peerConnection.setLocalDescription(offer)
+let answer={"type":"answer","sdp":"v=0\r\no=- 5783781853060711327 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=application 57026 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 192.168.56.1\r\na=candidate:2999745851 1 udp 2122260223 192.168.56.1 57026 typ host generation 0 network-id 2\r\na=candidate:3022624816 1 udp 2122194687 192.168.1.4 57027 typ host generation 0 network-id 1 network-cost 10\r\na=ice-ufrag:oETs\r\na=ice-pwd:Hmt61Vrq8qkymdy0QlleQ/eZ\r\na=ice-options:trickle\r\na=fingerprint:sha-256 52:7B:4D:E7:F2:3E:27:43:D3:2A:59:61:CA:34:66:01:FE:92:D8:5C:FD:D0:9F:2A:60:DC:63:77:43:DB:A4:8A\r\na=setup:active\r\na=mid:0\r\na=sctp-port:5000\r\na=max-message-size:262144\r\n"}
+peerConnection.setRemoteDescription(answer)
+
+
+
+
+
+*** Browser II ***
+
+const peerConnection=new RTCPeerConnection()
+const offer={"type":"offer","sdp":"v=0\r\no=- 919629953160136410 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=application 53142 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 192.168.56.1\r\na=candidate:2999745851 1 udp 2122260223 192.168.56.1 53142 typ host generation 0 network-id 2\r\na=candidate:3022624816 1 udp 2122194687 192.168.1.4 53143 typ host generation 0 network-id 1 network-cost 10\r\na=candidate:4233069003 1 tcp 1518280447 192.168.56.1 9 typ host tcptype active generation 0 network-id 2\r\na=candidate:4205470912 1 tcp 1518214911 192.168.1.4 9 typ host tcptype active generation 0 network-id 1 network-cost 10\r\na=ice-ufrag:MHwd\r\na=ice-pwd:qxDlj/XxjksqkP6foOqdv/sM\r\na=ice-options:trickle\r\na=fingerprint:sha-256 26:22:C9:E4:2A:9B:71:D0:48:5E:00:84:D3:3C:68:68:31:58:A3:1C:68:FF:0A:BD:A3:39:AF:DC:5C:91:94:C1\r\na=setup:actpass\r\na=mid:0\r\na=sctp-port:5000\r\na=max-message-size:262144\r\n"}
+peerConnection.onicecandidate=(e)=>console.log('IceCandidate: ',JSON.stringify(peerConnection.localDescription))
+await peerConnection.setRemoteDescription(offer)
+
+let dataChannel;
+peerConnection.ondatachannel=(e)=>{
+    dataChannel=e.channel;
+    dataChannel.onopen=()=>console.log('channel opened')
+    dataChannel.onmessage=(e)=>console.log('Message: ',e.data)
+}
+
+const answer=await peerConnection.createAnswer()
+peerConnection.setLocalDescription(answer)
+
+dataChannel.send("Hello form browser2")
+
+
+
+
+
+
